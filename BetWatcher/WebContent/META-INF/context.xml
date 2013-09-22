@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Resource name="jdbc/BetWatcher"
+		auth="Container"
+		type="javax.sql.DataSource"
+		username="remote"
+		password="admin"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://vps31242.ovh.net:3306/Betwatcher"
+		maxActive="15"
+		maxIdle="3"/>
+</Context>
