@@ -34,11 +34,12 @@ public class MarginListServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String bf_marketId = request.getParameter("bf_marketId");
 		String marginString = request.getParameter("margin");
 		if (marginString == null)
 			marginString = "0.1";
 		float margin = new Float(marginString);
-		ArrayList<HashMap<String, String>> prices = DataManager.sharedInstance().getMarketPricesWithMargin(margin);
+		ArrayList<HashMap<String, String>> prices = DataManager.sharedInstance().getMarketPrices(bf_marketId, margin);
 		
 		String json = null;
 		json = new Gson().toJson(prices);

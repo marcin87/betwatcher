@@ -11,6 +11,8 @@ public class Bet365Market {
 	public Date timestamp;
 	public GameType type;
 	public String bf_marketId;
+	public String status;
+	public boolean useToPlay;
 	
 	
 	public Bet365Market(String categoryName, int categoryId, String name, String id, Date timestamp, String bf_marketId) {

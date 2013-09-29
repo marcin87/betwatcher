@@ -24,7 +24,8 @@ public class MarketOddsRunnable implements Runnable {
 
 		while (!shouldStop) {
 			ArrayList<Bet365MarketOdd> marketOdds =  Bet365NetworkManager.sharedInstance().getMarketOdds(market);
-			if (marketOdds == null || marketOdds.size() == 0) {
+			boolean useToPlay = DataManager.sharedInstance().getB365MarketWithBFMarketId(market.bf_marketId).useToPlay;
+			if (marketOdds == null || marketOdds.size() == 0 || !useToPlay) {
 				DataManager.sharedInstance().setMarketInactive(market);
 				shouldStop = true;
 			} else {
@@ -47,7 +48,6 @@ public class MarketOddsRunnable implements Runnable {
 						price.marginToBack = marginToBack;
 						price.marginToLay = marginToLay;
 						DataManager.sharedInstance().saveBFMarketPrice(price);
-						System.out.println(price);
 						Utils.Log("market price saved");
 					}
 				}

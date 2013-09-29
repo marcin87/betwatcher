@@ -129,8 +129,7 @@ public class DataManager {
 		try {
 			Connection connection = DriverManager.getConnection(url, login, password);
 			Statement statement = connection.createStatement();
-			String query = "SELECT * FROM b365_marketoddOdd WHERE bf_marketid=\"" + marketOdd.market.id + "\" and runner=\"" + marketOdd.eventName + "\" group by bf_marketid,runner,timestamp order by timestamp desc";
-//			System.out.println(query);
+			String query = "SELECT * FROM b365_marketodd WHERE bf_marketid=\"" + marketOdd.market.id + "\" and runner=\"" + marketOdd.eventName + "\" group by bf_marketid,runner,timestamp order by timestamp desc";
 			ResultSet resultSet = statement.executeQuery(query);
 			if (resultSet.next()) {
 				Float odd = resultSet.getFloat("odd");
@@ -144,6 +143,7 @@ public class DataManager {
 			preparedStatement.setString(3, marketOdd.eventName);
 			preparedStatement.setFloat(4, marketOdd.getOdd());
 			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -159,6 +159,7 @@ public class DataManager {
 			preparedStatement.setBoolean(2, false);
 			preparedStatement.setString(3, market.id);
 			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -292,6 +293,7 @@ public class DataManager {
 			preparedStatement.setString(1, algorithmName);
 			preparedStatement.setString(2, market.id);
 			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -312,6 +314,7 @@ public class DataManager {
 			preparedStatement.setFloat(9, price.marginToLay);
 			preparedStatement.setTimestamp(10, new Timestamp(new Date().getTime()));
 			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -347,6 +350,33 @@ public class DataManager {
 			e.printStackTrace();
 		}
 		return prices;
+	}
+	
+	public Bet365Market getB365MarketWithBFMarketId(String bf_marketId) {
+		Bet365Market market = null;
+		try {
+			Connection connection = DriverManager.getConnection(url, login, password);
+			PreparedStatement preparedStatement = connection
+					.prepareStatement("SELECT * FROM b365_market WHERE bf_marketId = ?");
+			preparedStatement.setString(1, bf_marketId);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				String categoryName = resultSet.getString("category");
+				String name = resultSet.getString("name");
+				Date createDate = resultSet.getDate("createDate");
+				String id = resultSet.getString("id");
+				boolean useToPlay = resultSet.getBoolean("useToPlay");
+				String status = resultSet.getString("status");
+				
+				market = new Bet365Market(categoryName, 0, name, id, createDate, bf_marketId);
+				market.useToPlay = useToPlay;
+				market.status = status;
+			}
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return market;
 	}
 	
 	

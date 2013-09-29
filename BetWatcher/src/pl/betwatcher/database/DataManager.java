@@ -16,6 +16,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import com.mysql.jdbc.SQLError;
+
 import pl.betwatcher.bet365.Bet365Market;
 import pl.betwatcher.bet365.Bet365MarketOdd;
 import pl.betwatcher.betfair.BetFairMarketPrice;
@@ -67,6 +69,7 @@ public class DataManager {
 					preparedStatement.execute();
 				}
 			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -91,6 +94,7 @@ public class DataManager {
 					preparedStatement.execute();
 				}
 			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -105,7 +109,7 @@ public class DataManager {
 						.prepareStatement("DELETE from bf_market WHERE id="
 								+ market.id);
 				preparedStatement.execute();
-
+				connection.close();
 			} else {
 				Connection connection = ds.getConnection();
 				String query = "UPDATE bf_market SET startDate=?, runner1Name=?, runner2Name=?, menuPath=?, baseRate=?, runner1Id=?, runner2Id=?, eventTypeId=? WHERE id="
@@ -122,8 +126,8 @@ public class DataManager {
 				preparedStatement.setInt(7, market.runner2Id);
 				preparedStatement.setInt(8, market.eventTypeId);
 				preparedStatement.execute();
+				connection.close();
 			}
-
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -142,6 +146,7 @@ public class DataManager {
 				BetFairMarket market = new BetFairMarket(id, name);
 				markets.add(market);
 			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -175,6 +180,7 @@ public class DataManager {
 			preparedStatement.setString(3, marketOdd.eventName);
 			preparedStatement.setFloat(4, marketOdd.getOdd());
 			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -190,6 +196,21 @@ public class DataManager {
 			preparedStatement.setBoolean(2, false);
 			preparedStatement.setString(3, market.id);
 			preparedStatement.execute();
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void setMarketActiveState(String id, boolean active) {
+		try {
+			Connection connection = ds.getConnection();
+			PreparedStatement preparedStatement = connection
+					.prepareStatement("UPDATE b365_market SET status=? WHERE id=?");
+			preparedStatement.setString(1, active?"ACTIVE":"INACTIVE");
+			preparedStatement.setString(2, id);
+			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -213,6 +234,7 @@ public class DataManager {
 						id, null, bf_marketId);
 				activeMatchedMarkets.add(market);
 			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -246,6 +268,7 @@ public class DataManager {
 				preparedStatement.setString(2, market.id);
 				preparedStatement.execute();
 			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -302,7 +325,7 @@ public class DataManager {
 					preparedStatement.execute();
 				}
 			}
-
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -323,6 +346,7 @@ public class DataManager {
 				EventType eventType = new EventType(id, name);
 				eventTypes.add(eventType);
 			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -338,6 +362,7 @@ public class DataManager {
 			preparedStatement.setString(1, algorithmName);
 			preparedStatement.setString(2, market.id);
 			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -360,6 +385,7 @@ public class DataManager {
 			preparedStatement.setTimestamp(10,
 					new Timestamp(new Date().getTime()));
 			preparedStatement.execute();
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -371,6 +397,54 @@ public class DataManager {
 				.replace(" MIA ", " Miami ").replace("MIL", " Milwaukee ");
 	}
 
+	
+	public ArrayList<HashMap<String, String>> getMarketPrices(String bf_marketId, float margin) {
+		ArrayList<HashMap<String, String>> prices = new ArrayList<HashMap<String, String>>();
+		try {
+			Connection connection = ds.getConnection();
+			PreparedStatement preparedStatement = connection
+					.prepareStatement("SELECT * "
+							+ "FROM bf_marketprice "
+							+ "WHERE bf_marketId = ? AND (marginToBack >= ? or marginToLay >= ?) "
+							+ "ORDER BY timestamp desc");
+			preparedStatement.setString(1, bf_marketId);
+			preparedStatement.setFloat(2, margin);
+			preparedStatement.setFloat(3, margin);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				String runnerId = "" + resultSet.getInt("runnerId");
+				String timestamp = "" + resultSet.getTimestamp("timestamp");
+				String priceToBack = "" + resultSet.getFloat("priceToBack");
+				String marginToBack = "" + resultSet.getFloat("marginToBack");
+				String amountToBack = "" + resultSet.getFloat("amountToBack");
+				
+				String priceToLay = "" + resultSet.getFloat("priceToLay");
+				String marginToLay = "" + resultSet.getFloat("marginToLay");
+				String amountToLay = "" + resultSet.getFloat("amountToLay");
+				HashMap<String, String> result = new HashMap<String, String>();
+				result.put("bf_marketId", bf_marketId);
+				result.put("timestamp", timestamp);
+				result.put("runnerId", runnerId);
+				
+				result.put("priceToBack", priceToBack);
+				result.put("amountToBack", amountToBack);
+				result.put("marginToBack", marginToBack);
+				
+				result.put("priceToLay", priceToLay);
+				result.put("amountToLay", amountToLay);
+				result.put("marginToLay", marginToLay);
+				prices.add(result);
+			}
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return prices;
+		
+	}
+	
 	public ArrayList<HashMap<String, String>> getMarketPricesWithMargin(
 			float margin) {
 		ArrayList<HashMap<String, String>> prices = new ArrayList<HashMap<String, String>>();
@@ -397,6 +471,7 @@ public class DataManager {
 				result.put("marginToLay", marginToLay);
 				prices.add(result);
 			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -425,6 +500,34 @@ public class DataManager {
 						runner1Id, runner2Id, runner1Name, runner2Name,
 						menuPath, baseRate, eventTypeId);
 			}
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return market;
+	}
+	
+	public Bet365Market getB365MarketWithBFMarketId(String bf_marketId) {
+		Bet365Market market = null;
+		try {
+			Connection connection = ds.getConnection();
+			PreparedStatement preparedStatement = connection
+					.prepareStatement("SELECT * FROM b365_market WHERE bf_marketId = ?");
+			preparedStatement.setString(1, bf_marketId);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				String categoryName = resultSet.getString("category");
+				String name = resultSet.getString("name");
+				Date createDate = resultSet.getDate("createDate");
+				String id = resultSet.getString("id");
+				boolean useToPlay = resultSet.getBoolean("useToPlay");
+				String status = resultSet.getString("status");
+				
+				market = new Bet365Market(categoryName, 0, name, id, createDate, bf_marketId);
+				market.useToPlay = useToPlay;
+				market.status = status;
+			}
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -534,7 +637,7 @@ public class DataManager {
 			PreparedStatement preparedStatement = connection
 					.prepareStatement("" 
 							+ "UPDATE b365_market "
-							+ "SET useToPlay = ? " 
+							+ "SET useToPlay = ?, algorithm='' " 
 							+ "WHERE bf_marketid = ?");
 			preparedStatement.setBoolean(1, useToPlay);
 			preparedStatement.setString(2, id);
