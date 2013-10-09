@@ -48,34 +48,37 @@ td {
 					.each(
 							responseJson,
 							function(index, item) {
-								statusClass = (item["status"] == "ACTIVE") ? "active"
-										: "inactive";
-								var $tr = $('<tr class="' + statusClass + '">')
-										.appendTo($('#markets'));
-								$('<td>')
-										.text(
-												item["category"] + " > "
-														+ item["name"])
-										.appendTo($tr);
-								$('<td>').text(item["createDate"])
-										.appendTo($tr);
-								if (statusClass == "active") {
-									$td = $('<td><a>ACTIVE</a>').appendTo($tr);
-								} else {
-									$td = $('<td>').appendTo($tr);
-									$(
-											'<button class="activate" id="' + item["bf_marketId"] + '">ACTIVATE</button>')
-											.appendTo($td);
-								}
-								if (item["useToPlay"] == "YES") {
-									$td = $('<td>').appendTo($tr);
-									$(
-											'<button class="play" id="' + item["bf_marketId"] + '">PLAYING</button>')
-											.appendTo($td);
-								} else {
-									$(
-											'<td><button class="play" id="' + item["bf_marketId"] + '">PLAY</button>')
+								category = item["category"];
+								if (category == 'Tennis') {
+									statusClass = (item["status"] == "ACTIVE") ? "active"
+											: "inactive";
+									var $tr = $(
+											'<tr class="' + statusClass + '">')
+											.appendTo($('#markets'));
+									$('<td>').text(
+											category + " > " + item["name"])
 											.appendTo($tr);
+									$('<td>').text(item["createDate"])
+											.appendTo($tr);
+									if (statusClass == "active") {
+										$td = $('<td><a>ACTIVE</a>').appendTo(
+												$tr);
+									} else {
+										$td = $('<td>').appendTo($tr);
+										$(
+												'<button class="activate" id="' + item["bf_marketId"] + '">ACTIVATE</button>')
+												.appendTo($td);
+									}
+									if (item["useToPlay"] == "YES") {
+										$td = $('<td>').appendTo($tr);
+										$(
+												'<button class="play" id="' + item["bf_marketId"] + '">PLAYING</button>')
+												.appendTo($td);
+									} else {
+										$(
+												'<td><button class="play" id="' + item["bf_marketId"] + '">PLAY</button>')
+												.appendTo($tr);
+									}
 								}
 							});
 		}
@@ -153,7 +156,6 @@ td {
 				handlePrices(id);
 			}
 		});
-		
 
 		$('body').on('click', 'button.activate', function() {
 			$.post('MarketsServlet', {

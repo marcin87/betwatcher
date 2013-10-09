@@ -414,6 +414,8 @@ public class DataManager {
 			while (resultSet.next()) {
 				String runnerId = "" + resultSet.getInt("runnerId");
 				String timestamp = "" + resultSet.getTimestamp("timestamp");
+				String b365_odd = "" + resultSet.getFloat("b365_odd");
+				
 				String priceToBack = "" + resultSet.getFloat("priceToBack");
 				String marginToBack = "" + resultSet.getFloat("marginToBack");
 				String amountToBack = "" + resultSet.getFloat("amountToBack");
@@ -421,10 +423,12 @@ public class DataManager {
 				String priceToLay = "" + resultSet.getFloat("priceToLay");
 				String marginToLay = "" + resultSet.getFloat("marginToLay");
 				String amountToLay = "" + resultSet.getFloat("amountToLay");
+				
 				HashMap<String, String> result = new HashMap<String, String>();
 				result.put("bf_marketId", bf_marketId);
 				result.put("timestamp", timestamp);
 				result.put("runnerId", runnerId);
+				result.put("b365_odd", b365_odd);
 				
 				result.put("priceToBack", priceToBack);
 				result.put("amountToBack", amountToBack);

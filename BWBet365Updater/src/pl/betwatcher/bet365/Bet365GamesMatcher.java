@@ -15,9 +15,9 @@ public class Bet365GamesMatcher {
 		int matchedCount = 0;
 		for (Bet365Market market : markets) {
 			boolean newCreated = DataManager.sharedInstance().saveOrUpdateB365Market(market);
-			if (newCreated) {
+//			if (newCreated) {
 				matchedCount += DataManager.sharedInstance().matchMarket(market)?1:0;
-			}
+//			}
 		}
 		Utils.Log("matchedCount: " + matchedCount);
 	}

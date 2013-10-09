@@ -31,14 +31,20 @@ td {
 		if (responseJson != "") {
 			$("#markets").empty();
 			$.each(responseJson, function(index, item) {
-				statusClass = (item["status"] == "ACTIVE") ? "active"
-						: "inactive";
-				var $tr = $('<tr class="' + statusClass + '">').appendTo(
-						$('#markets'));
-				$('<td>').text(item["category"]).appendTo($tr);
-				$('<td>').text(item["name"]).appendTo($tr);
-				$('<td>').text(item["createDate"]).appendTo($tr);
-				$('<td><a href="Market?id=' + item["bf_marketId"] + '">' + item["bf_marketId"] + '</a>').appendTo($tr);
+				category = item["category"];
+				if (category == "Tennis") {
+					statusClass = (item["status"] == "ACTIVE") ? "active"
+							: "inactive";
+					var $tr = $('<tr class="' + statusClass + '">').appendTo(
+							$('#markets'));
+					$('<td>').text(category).appendTo($tr);
+					$('<td>').text(item["name"]).appendTo($tr);
+					$('<td>').text(item["createDate"]).appendTo($tr);
+					$(
+							'<td><a href="Market?id=' + item["bf_marketId"]
+									+ '">' + item["bf_marketId"] + '</a>')
+							.appendTo($tr);
+				}
 			});
 		}
 	}

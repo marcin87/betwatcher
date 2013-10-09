@@ -230,7 +230,7 @@ public class DataManager {
 			String query = "select * " + 
 					"from bf_market " +
 					"where eventTypeId = " + market.categoryId + " " + 
-					"and ABS(TIMESTAMPDIFF(MINUTE, startDate, '" + format.format(market.timestamp) + "'))<100 ";	
+					"and ABS(TIMESTAMPDIFF(MINUTE, startDate, '" + format.format(market.timestamp) + "'))<1000 ";
 			ResultSet resultSet = statement.executeQuery(query);
 			while (resultSet.next()) {
 				String id = "" + resultSet.getInt("id");

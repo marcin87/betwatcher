@@ -71,6 +71,7 @@ td {
 				var $tr = $('<tr>').appendTo($('#prices'));
 				$('<td>').text(runners[item["runnerId"]]).appendTo($tr);
 				$('<td>').text(item["timestamp"]).appendTo($tr);
+				$('<td>').text(item["b365_odd"]).appendTo($tr);
 				$('<td>').text(item["priceToBack"]).appendTo($tr);
 				$('<td>').text(item["amountToBack"]).appendTo($tr);
 				$('<td class="margin">').text(item["marginToBack"]).appendTo($tr);
@@ -82,9 +83,11 @@ td {
 	}
 
 	function updatePrices(id) {
+		var $margin = $("#marginValue").val();
+		$margin = $margin==""?0.1:$margin;
 		$.get('MarginListServlet', {
 			bf_marketId : id,
-			margin : 0.01
+			margin : $margin
 		}, function(responseJson) {
 			$('#status').text(new Date());
 			updateStructure(responseJson);
@@ -140,6 +143,12 @@ td {
 				id : "<%=bfMarket.id%>",
 				useToPlay : useToPlay
 			}, function(responseJson) {
+				$.post('MarketsServlet', {
+					action : 'runProcess'
+				}, function() {
+				}).fail(function(xhr, status, error) {
+					alert(xhr.responseText);
+				});
 			}).fail(function(xhr, status, error) {
 				alert(xhr.responseText);
 			});
@@ -155,12 +164,14 @@ td {
 		<button id="active"><%=market.status.equals("ACTIVE") ? "SET INACTIVE"
 					: "SET ACTIVE"%></button>
 		<button id="useToPlay"><%=market.useToPlay ? "STOP" : "PLAY"%></button>
+		<input type="number" id="marginValue" min="0" step="any" value="0.3" />
 	</p>
 	<table>
 		<thead>
 			<tr>
 				<th>Runner</th>
 				<th>Timestamp</th>
+				<th>Bet365 Odd</th>
 				<th>Price to back</th>
 				<th>Amount to back</th>
 				<th>Margin to back</th>
